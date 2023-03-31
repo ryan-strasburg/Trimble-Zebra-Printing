@@ -1,2 +1,2 @@
-# trimble_zebra_printing
+# Trimble Zebra Printing
 Trimble Zebra Printing for ZPL Printing

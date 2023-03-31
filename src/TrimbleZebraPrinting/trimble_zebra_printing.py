@@ -183,6 +183,13 @@ class Zebra:
         else:
             self._output(commands)
 
+    def set_queue(self, queue):
+        """
+        Set Printer Queue.
+        :param queue: printer queue (string)
+        """
+        self.queue = queue
+
     def get_queues(self):
         """
         Get Printer Queues.

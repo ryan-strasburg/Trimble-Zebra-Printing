@@ -208,13 +208,11 @@ class Zebra:
         """
         if queue is None:
             queue = win32print.GetDefaultPrinter()
-        pattern = r'\d{3}dpi'
-        for (_, desc, name, _) in win32print.EnumPrinters(win32print.PRINTER_ENUM_LOCAL):
+        for (_, _, name, _) in win32print.EnumPrinters(win32print.PRINTER_ENUM_LOCAL):
             if name == queue:
-                driver = desc.split(',')[1]
-                if tgc.re.search(pattern, driver):
-                    dpi = tgc.re.search(pattern, driver)
-                    return int(dpi.group().lower().strip('dpi'))
+                hPrinter = win32print.OpenPrinter(name)
+                port = win32print.GetPrinter(hPrinter, 2)['pPortName']
+                return win32print.DeviceCapabilities(name, port, 13)[0]['xdpi']
         return 0
 
     def get_label_dpi(self, commands):

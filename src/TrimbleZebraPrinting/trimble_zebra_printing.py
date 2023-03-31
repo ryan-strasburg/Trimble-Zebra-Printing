@@ -230,7 +230,7 @@ class Zebra:
         else:
             return 0
 
-    def setup(self,label_height, label_width, direct_thermal = None):
+    def setup(self, label_height, label_width, direct_thermal = None):
         """
         Setup Printer Parameters Manually.
         :param label_height: tuple (label height, label gap) (in dots)

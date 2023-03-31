@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "trimble_zebra_printing"
-version = "1.0.0"
+version = "1.0.1"
 authors = [
   { name="Ryan Strasburg", email="ryan_strasburg@trimble.com" },
 ]

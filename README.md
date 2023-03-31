@@ -1,7 +1,7 @@
 # Trimble Zebra Printing
 Trimble Zebra Printing was built to simplify and standardize ZPL printing in the Trimble Facilities. This includes features, such as DPI scaling, to improve printing automation. Upscaling DPI results in a loss of quality. Matching DPIs or downscaling is recommended.
 
-# class Trimble_Zebra
+# class Zebra
 Class To Communicate & Print With (Zebra) Label Printers.
 
 ## def print_label(self, commands, queue = None):

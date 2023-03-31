@@ -11,7 +11,7 @@
 # =============================================================================
 # Imports
 # =============================================================================
-import trimble_graphics_conversion as tgc
+from TrimbleZebraPrinting import trimble_graphics_conversion as tgc
 import win32print
 
 """
@@ -46,7 +46,7 @@ scalable_cmds = [
     "PW",
 ]
 
-class Trimble_Zebra:
+class Zebra:
     """
     Class To Communicate & Print With (Zebra) Label Printers.
     """
@@ -265,7 +265,7 @@ if __name__ == '__main__':
                      """A40,240,0,3,1,1,N,"Created On: March 31, 2023"\n"""
                      """A40,320,0,4,1,1,N,"With Trimble, Work Works Now."\n"""
                      """P1\n""")
-    z = Trimble_Zebra()
+    z = Zebra()
     z.setup((406, 32), 812, True)
     z.print_label(test_commands)
     print('~ Printer Commands ~' + '\n' + test_commands)

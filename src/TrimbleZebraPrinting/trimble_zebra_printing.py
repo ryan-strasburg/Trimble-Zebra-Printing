@@ -166,10 +166,12 @@ class Zebra:
         finally:
             win32print.ClosePrinter(hPrinter)
 
-    def print_label(self, commands, queue = None):
+    def print_label(self, commands, label_width = None, label_length = None, queue = None):
         """
         Print Label Using ZPL Commands.
         :param commands: ZPL command (string)
+        :param label_width: label width (in inches) (required for printer scaling) (optional)
+        :param label_length: label length (in inches) (required for printer scaling) (optional)
         :param queue: printer queue (string) (optional)
         """
         if queue is None:
@@ -177,9 +179,12 @@ class Zebra:
         else:
             self.queue = queue
         printer_dpi = self.get_printer_dpi(self.queue)
-        label_dpi = self.get_label_dpi(commands)
-        if printer_dpi > 0 and label_dpi > 0 and label_dpi != printer_dpi:
-            self._output(self._rescale(commands, printer_dpi, label_dpi))
+        if label_width != None or label_length != None:
+            label_dpi = self.get_label_dpi(commands, label_width, label_length)
+            if printer_dpi > 0 and label_dpi > 0 and label_dpi != printer_dpi:
+                self._output(self._rescale(commands, printer_dpi, label_dpi))
+            else:
+                self._output(commands)
         else:
             self._output(commands)
 
@@ -215,31 +220,42 @@ class Zebra:
                 return win32print.DeviceCapabilities(name, port, 13)[0]['xdpi']
         return 0
 
-    def get_label_dpi(self, commands):
+    def get_label_dpi(self, commands, label_width, label_length):
         """
         Get Label DPI.
         :param commands: ZPL command (string)
+        :param label_width: label width (in inches)
+        :param label_length: label length (in inches)
         :return: label DPI (int)
         """
-        pattern = r'\^LL\d{3}'
-        if tgc.re.search(pattern, commands):
-            dpi = tgc.re.search(pattern, commands)
-            return int(dpi.group().strip('^LL'))
-        else:
-            return 0
+        width_pattern = r'\^PW\d+'
+        length_pattern = r'\^LL\d+'
+        if tgc.re.search(length_pattern, commands) and tgc.re.search(width_pattern, commands):
+            width = int(tgc.re.search(width_pattern, commands).group().strip('^PW'))
+            length = int(tgc.re.search(length_pattern, commands).group().strip('^LL'))
+            dpi_options = [203, 300, 600]
+            dpi_width = min(dpi_options, key = lambda x:abs(x - width / label_width))
+            dpi_length = min(dpi_options, key = lambda x:abs(x - length / label_length))
+            if dpi_width == dpi_length and dpi_width == dpi_options[0]:
+                return dpi_options[0]
+            elif dpi_width == dpi_length and dpi_width == dpi_options[1]:
+                return dpi_options[1]
+            elif dpi_width == dpi_length and dpi_width == dpi_options[2]:
+                return dpi_options[2]
+        return 0
 
-    def setup(self, label_height, label_width, direct_thermal = None):
+    def setup(self, label_width, label_length, direct_thermal = None):
         """
         Setup Printer Parameters Manually.
-        :param label_height: tuple (label height, label gap) (in dots)
         :param label_width: label width (in dots)
+        :param label_length: tuple (label length, label gap) (in dots)
         :param direct_thermal: True if using direct thermal labels (bool) (optional)
         """
         commands = '\n'
         if direct_thermal:
             commands += 'OD\n'
-        commands += 'Q%s,%s\n' % (label_height[0], label_height[1])
         commands += 'q%s\n' % label_width
+        commands += 'Q%s,%s\n' % (label_length[0], label_length[1])
         self._output(commands)
 
     def autosense(self):
@@ -271,7 +287,7 @@ if __name__ == '__main__':
                      """A40,320,0,4,1,1,N,"With Trimble, Work Works Now."\n"""
                      """P1\n""")
     z = Zebra()
-    z.setup((406, 32), 812, True)
+    z.setup(609, (1015, 32), True)
     z.print_label(test_commands)
     print('~ Printer Commands ~' + '\n' + test_commands)
     print('Printer Queues:', z.get_queues(), '\n')
